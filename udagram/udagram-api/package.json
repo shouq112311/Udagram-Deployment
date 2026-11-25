@@ -3,9 +3,9 @@
   "version": "2.0.0",
   "description": "",
   "engines": {
-    "node": "14.15.0"
+    "node": "22.x"
   },
-  "main": "server.ts",
+  "main": "server.js",
   "scripts": {
     "start": "node ./server.js",
     "start:dev": "node ./www/server.js",
@@ -23,7 +23,7 @@
   "dependencies": {
     "@types/bcryptjs": "2.4.2",
     "@types/jsonwebtoken": "^8.3.2",
-    "aws-sdk": "^2.429.0",
+    "aws-sdk": "^2.1692.0",
     "bcryptjs": "2.4.3",
     "body-parser": "^1.18.3",
     "cors": "^2.8.5",
