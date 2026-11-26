@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
   aws-cli: circleci/aws-cli@3.1.1
+  browser-tools: circleci/browser-tools@1.4.8
 
 jobs:
   frontend-build:
@@ -9,12 +10,15 @@ jobs:
       - image: cimg/node:16.20-browsers
     steps:
       - checkout
+      - browser-tools/install-chrome
       - run:
           name: Install Frontend Dependencies
           command: npm run frontend:install
       - run:
           name: Run Frontend Tests
-          command: npm run frontend:test -- --browsers=ChromeHeadless
+          command: |
+            cd udagram/udagram-frontend
+            npm run test -- --browsers=ChromeHeadless
       - run:
           name: Build Frontend
           command: npm run frontend:build
