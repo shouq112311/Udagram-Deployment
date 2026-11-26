@@ -57,6 +57,30 @@ jobs:
           name: Deploy Frontend to AWS S3
           command: npm run frontend:deploy
 
+  backend-deploy:
+    docker:
+      - image: cimg/python:3.11
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - aws-cli/install
+      - run:
+          name: Install Elastic Beanstalk CLI
+          command: |
+            python -m venv /tmp/ebcli
+            /tmp/ebcli/bin/pip install awsebcli
+            sudo apt-get update
+            sudo apt-get install -y zip
+      - run:
+          name: Deploy Backend to Elastic Beanstalk
+          command: |
+            cd udagram/udagram-api
+            cd www
+            zip -r ../udagram-api.zip .
+            cd ..
+            /tmp/ebcli/bin/eb deploy Udagram-api-env
+
 workflows:
   udagram:
     jobs:
@@ -70,6 +94,12 @@ workflows:
             branches:
               only: main
       - frontend-deploy:
+          requires:
+            - aws-check
+          filters:
+            branches:
+              only: main
+      - backend-deploy:
           requires:
             - aws-check
           filters:
