@@ -1,71 +1,190 @@
-# Hosting a Full-Stack Application
+# Udagram – Hosting a Full-Stack Application
 
-### **You can use you own project completed in previous courses or use the provided Udagram app for completing this final project.**
+## Project Overview
 
----
+This project is part of the Udacity Full Stack JavaScript Developer Nanodegree. It demonstrates the deployment of a full-stack web application using AWS cloud services and an automated CI/CD pipeline with CircleCI.
 
-In this project you will learn how to take a newly developed Full-Stack application built for a retailer and deploy it to a cloud service provider so that it is available to customers. You will use the aws console to start and configure the services the application needs such as a database to store product information and a web server allowing the site to be discovered by potential customers. You will modify your package.json scripts and replace hard coded secrets with environment variables in your code.
+Udagram allows users to register, log in, upload images, and view shared posts.
 
-After the initial setup, you will learn to interact with the services you started on aws and will deploy manually the application a first time to it. As you get more familiar with the services and interact with them through a CLI, you will gradually understand all the moving parts.
+## Live Application
 
-You will then register for a free account on CircleCi and connect your Github account to it. Based on the manual steps used to deploy the app, you will write a config.yml file that will make the process reproducible in CircleCi. You will set up the process to be executed automatically based when code is pushed on the main Github branch.
+- [Frontend Application](http://udagram-frontend-shouq112311.s3-website-us-east-1.amazonaws.com)
+- [Backend API](http://udagram-api-env.eba-tcpqvm3m.us-east-1.elasticbeanstalk.com/api/v0/)
 
-The project will also include writing documentation and runbooks covering the operations of the deployment process. Those runbooks will serve as a way to communicate with future developers and anybody involved in diagnosing outages of the Full-Stack application.
+## Technologies Used
 
-# Udagram
+- Angular
+- Ionic
+- TypeScript
+- Node.js
+- Express.js
+- PostgreSQL
+- Sequelize
+- Amazon S3
+- AWS Elastic Beanstalk
+- Amazon RDS
+- CircleCI
+- GitHub
 
-This application is provided to you as an alternative starter project if you do not wish to host your own code done in the previous courses of this nanodegree. The udagram application is a fairly simple application that includes all the major components of a Full-Stack web application.
+## Application Architecture
 
+The application is deployed in the AWS us-east-1 region.
 
+- **Amazon S3:** Hosts the frontend application.
+- **AWS Elastic Beanstalk:** Hosts the backend REST API.
+- **Amazon RDS:** Provides the PostgreSQL database.
+- **Amazon S3 Media Bucket:** Stores uploaded images.
+- **CircleCI:** Automates testing, building, and deployment.
 
-### Dependencies
+![Application Architecture](docs/architecture-diagram.png)
 
+## Prerequisites
+
+- Node.js 16.20.x for the frontend
+- Node.js 22.x for the backend
+- npm
+- AWS CLI
+- Elastic Beanstalk CLI
+- PostgreSQL
+- Google Chrome for frontend tests
+
+## Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/shouq112311/Udagram-Deployment.git
+cd Udagram-Deployment
 ```
-- Node v14.15.1 (LTS) or more recent. While older versions can work it is advisable to keep node to latest LTS version
 
-- npm 6.14.8 (LTS) or more recent, Yarn can work but was not tested for this project
+### Frontend
 
-- AWS CLI v2, v1 can work but was not tested for this project
+Using Node.js 16:
 
-- A RDS database running Postgres.
-
-- A S3 bucket for hosting uploaded pictures.
-
+```bash
+npm run frontend:install
+npm run frontend:start
 ```
 
-### Installation
+### Backend
 
-Provision the necessary AWS services needed for running the application:
+Using Node.js 22:
 
-1. In AWS, provision a publicly available RDS database running Postgres. <Place holder for link to classroom article>
-1. In AWS, provision a s3 bucket for hosting the uploaded files. <Place holder for tlink to classroom article>
-1. Export the ENV variables needed or use a package like [dotnev](https://www.npmjs.com/package/dotenv)/.
-1. From the root of the repo, navigate udagram-api folder `cd starter/udagram-api` to install the node_modules `npm install`. After installation is done start the api in dev mode with `npm run dev`.
-1. Without closing the terminal in step 1, navigate to the udagram-frontend `cd starter/udagram-frontend` to intall the node_modules `npm install`. After installation is done start the api in dev mode with `npm run start`.
+```bash
+npm run api:install
+npm run api:start
+```
+
+Configure the required backend environment variables before starting the API.
+
+## Environment Variables
+
+The backend requires the following environment variables:
+
+- POSTGRES_USERNAME
+- POSTGRES_PASSWORD
+- POSTGRES_DB
+- POSTGRES_HOST
+- AWS_REGION
+- AWS_PROFILE
+- AWS_BUCKET
+- JWT_SECRET
+- URL
+
+Sensitive credentials are not included in the source code.
 
 ## Testing
 
-This project contains two different test suite: unit tests and End-To-End tests(e2e). Follow these steps to run the tests.
+### Frontend Tests
 
-1. `cd starter/udagram-frontend`
-1. `npm run test`
-1. `npm run e2e`
+Using Node.js 16:
 
-There are no Unit test on the back-end
+```bash
+cd udagram/udagram-frontend
+npm run test -- --browsers=ChromeHeadless
+```
 
-### Unit Tests:
+**Result: 13 tests passed.**
 
-Unit tests are using the Jasmine Framework.
+![Frontend Tests](screenshots/frontend-tests.png)
 
-### End to End Tests:
+### Backend Tests
 
-The e2e tests are using Protractor and Jasmine.
+Using Node.js 22:
 
-## Built With
+```bash
+cd udagram/udagram-api
+npm run build
+npm test
+```
 
-- [Angular](https://angular.io/) - Single Page Application Framework
-- [Node](https://nodejs.org) - Javascript Runtime
-- [Express](https://expressjs.com/) - Javascript API Framework
+**Result: 6 tests passed.**
+
+![Backend Tests](screenshots/backend-tests.png)
+
+A total of 19 automated tests passed successfully.
+
+## Build
+
+Build the frontend using Node.js 16:
+
+```bash
+npm run frontend:build
+```
+
+Build the backend using Node.js 22:
+
+```bash
+npm run api:build
+```
+
+Run these commands from the repository root.
+
+## CI/CD Pipeline
+
+The CircleCI pipeline automatically runs when changes are pushed to GitHub. Deployment is restricted to the main branch.
+
+The pipeline includes:
+
+1. Install frontend and backend dependencies.
+2. Run frontend automated tests.
+3. Build the frontend application.
+4. Build the backend application.
+5. Run backend automated tests.
+6. Verify AWS credentials.
+7. Deploy the frontend to Amazon S3.
+8. Deploy the backend to AWS Elastic Beanstalk.
+
+![CI/CD Pipeline Diagram](docs/pipeline-diagram.png)
+
+### Successful Deployment
+
+![CircleCI Successful Pipeline](screenshots/pipeline-success.png)
+
+## Project Documentation
+
+- [Infrastructure Description](docs/infrastructure.md)
+- [Application Dependencies](docs/dependencies.md)
+- [CI/CD Pipeline Description](docs/pipeline.md)
+
+## AWS Deployment Screenshots
+
+- [S3 Frontend Hosting](screenshots/s3-static-website.png)
+- [S3 Media Storage](screenshots/s3-media-bucket.png)
+- [Elastic Beanstalk Environment](screenshots/elastic-beanstalk.png)
+- [RDS PostgreSQL Database](screenshots/rds-database.png)
+- [CircleCI Environment Variables](screenshots/circleci-environment-variables.png)
+
+## Deployed Application
+
+![Udagram Application](screenshots/udagram-website.png)
+
+## Known Limitations
+
+- The frontend and backend require different Node.js versions because of legacy frontend dependencies.
+- The application currently uses HTTP for educational deployment purposes.
+- Elastic Beanstalk reports an Auto Scaling IAM permission warning due to restricted lab permissions. The backend API was verified to be operational.
+- Temporary AWS credentials must remain valid for automated deployment.
 
 ## License
 

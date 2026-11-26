@@ -1,10 +1,12 @@
 version: 2.1
 
+# CircleCI orbs for AWS CLI and browser tools.
 orbs:
   aws-cli: circleci/aws-cli@3.1.1
   browser-tools: circleci/browser-tools@1.4.8
 
 jobs:
+  # Install, test, and build the legacy Angular frontend.
   frontend-build:
     docker:
       - image: cimg/node:16.20-browsers
@@ -22,11 +24,14 @@ jobs:
       - run:
           name: Build Frontend
           command: npm run frontend:build
+
+      # Share frontend build artifacts with the deployment job.
       - persist_to_workspace:
           root: .
           paths:
             - udagram/udagram-frontend/www
 
+  # Install, build, and test the backend using Node.js 22.
   backend-build:
     docker:
       - image: cimg/node:22.14
@@ -43,11 +48,14 @@ jobs:
           command: |
             cd udagram/udagram-api
             npm test
+
+      # Share backend build artifacts with the deployment job.
       - persist_to_workspace:
           root: .
           paths:
             - udagram/udagram-api/www
 
+  # Validate AWS credentials before deploying.
   aws-check:
     docker:
       - image: cimg/base:stable
@@ -58,6 +66,7 @@ jobs:
           name: Verify AWS Credentials
           command: aws sts get-caller-identity
 
+  # Deploy the compiled frontend to Amazon S3.
   frontend-deploy:
     docker:
       - image: cimg/node:16.20
@@ -70,6 +79,7 @@ jobs:
           name: Deploy Frontend to AWS S3
           command: npm run frontend:deploy
 
+  # Package and deploy the backend to Elastic Beanstalk.
   backend-deploy:
     docker:
       - image: cimg/python:3.11
@@ -85,6 +95,38 @@ jobs:
             /tmp/ebcli/bin/pip install awsebcli
             sudo apt-get update
             sudo apt-get install -y zip
+
+      # Pass protected CircleCI variables to the production environment.
+      - run:
+          name: Configure Production Environment Variables
+          command: |
+            set +x
+
+            : "${AWS_BUCKET:?Missing AWS_BUCKET}"
+            : "${AWS_REGION:?Missing AWS_REGION}"
+            : "${PORT:?Missing PORT}"
+            : "${POSTGRES_DB:?Missing POSTGRES_DB}"
+            : "${POSTGRES_HOST:?Missing POSTGRES_HOST}"
+            : "${POSTGRES_USERNAME:?Missing POSTGRES_USERNAME}"
+            : "${POSTGRES_PASSWORD:?Missing POSTGRES_PASSWORD}"
+            : "${JWT_SECRET:?Missing JWT_SECRET}"
+            : "${URL:?Missing URL}"
+
+            cd udagram/udagram-api
+
+            /tmp/ebcli/bin/eb setenv \
+              AWS_BUCKET="$AWS_BUCKET" \
+              AWS_REGION="$AWS_REGION" \
+              PORT="$PORT" \
+              POSTGRES_DB="$POSTGRES_DB" \
+              POSTGRES_HOST="$POSTGRES_HOST" \
+              POSTGRES_USERNAME="$POSTGRES_USERNAME" \
+              POSTGRES_PASSWORD="$POSTGRES_PASSWORD" \
+              JWT_SECRET="$JWT_SECRET" \
+              URL="$URL" \
+              --environment Udagram-api-env
+
+      # Deploy the compiled backend application.
       - run:
           name: Deploy Backend to Elastic Beanstalk
           command: |
@@ -94,6 +136,9 @@ jobs:
             cd ..
             /tmp/ebcli/bin/eb deploy Udagram-api-env
 
+# Build and test both applications in parallel.
+# Deploy only after successful builds and AWS verification.
+# Production deployment is restricted to the main branch.
 workflows:
   udagram:
     jobs:
