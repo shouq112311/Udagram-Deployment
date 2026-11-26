@@ -6,12 +6,15 @@ orbs:
 jobs:
   frontend-build:
     docker:
-      - image: cimg/node:16.20
+      - image: cimg/node:16.20-browsers
     steps:
       - checkout
       - run:
           name: Install Frontend Dependencies
           command: npm run frontend:install
+      - run:
+          name: Run Frontend Tests
+          command: npm run frontend:test -- --browsers=ChromeHeadless
       - run:
           name: Build Frontend
           command: npm run frontend:build
