@@ -1,0 +1,12 @@
+branch-defaults:
+  main:
+    environment: Udagram-api-env
+
+global:
+  application_name: udagram-api
+  default_region: us-east-1
+  default_platform: null
+  workspace_type: Application
+
+deploy:
+  artifact: udagram-api.zip
