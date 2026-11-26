@@ -45,6 +45,18 @@ jobs:
           name: Verify AWS Credentials
           command: aws sts get-caller-identity
 
+  frontend-deploy:
+    docker:
+      - image: cimg/node:16.20
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - aws-cli/install
+      - run:
+          name: Deploy Frontend to AWS S3
+          command: npm run frontend:deploy
+
 workflows:
   udagram:
     jobs:
@@ -54,6 +66,12 @@ workflows:
           requires:
             - frontend-build
             - backend-build
+          filters:
+            branches:
+              only: main
+      - frontend-deploy:
+          requires:
+            - aws-check
           filters:
             branches:
               only: main
