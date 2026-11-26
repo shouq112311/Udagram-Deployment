@@ -15,7 +15,7 @@
     "clean": "rm -rf www/ || true",
     "deploy":  "npm run build && cd www && zip -r ../udagram-api.zip . && cd .. && eb deploy Udagram-api-env",
     "build":  "tsc && node -e \"const fs = require('fs'); ['package.json', 'package-lock.json', 'global-bundle.pem'].forEach(f => fs.copyFileSync(f, 'www/' + f))\"",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha test/**/*.test.js"
   },
   "keywords": [],
   "author": "Gabriel Ruttner",

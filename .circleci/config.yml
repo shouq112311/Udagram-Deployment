@@ -38,6 +38,11 @@ jobs:
       - run:
           name: Build API
           command: npm run api:build
+      - run:
+          name: Run Backend Tests
+          command: |
+            cd udagram/udagram-api
+            npm test
       - persist_to_workspace:
           root: .
           paths:
@@ -47,6 +52,7 @@ jobs:
     docker:
       - image: cimg/base:stable
     steps:
+      - checkout
       - aws-cli/install
       - run:
           name: Verify AWS Credentials
